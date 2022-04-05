@@ -1,0 +1,102 @@
+using Axon.me.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using WordPressPCL;
+using WordPressPCL.Models;
+
+namespace Axon.me.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class CategoriesController : ControllerBase
+    {
+
+        [HttpGet("GetPosts")]
+
+        public async Task<IEnumerable<PostViewModel>> GetPosts()
+        {
+
+            //HttpClient client = new HttpClient();
+
+            //var byteArray = Encoding.ASCII.GetBytes($"App:CrZ1B(n1Y@P5z31Vc1P^%Uy$");
+            //client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+            //client.BaseAddress = new Uri("http://axon.me/wp-json/");
+
+            //var wordPressClient = new WordPressClient(client);
+            //IEnumerable<PostViewModel> posts = (IEnumerable<PostViewModel>)await wordPressClient.Posts.GetAll();
+     
+            //return posts;
+
+
+
+
+            var client2 = new HttpClient
+            {
+                BaseAddress = new Uri("http://axon.me/wp-json/")
+            };
+
+            HttpRequestMessage requestMessage = new HttpRequestMessage();
+
+            client2.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var param = JsonConvert.SerializeObject(new
+            {
+                param1 = "",
+                param2 = ""
+            });
+
+            requestMessage.Content = new StringContent(param, Encoding.UTF8, "application/json");
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic",
+                 Convert.ToBase64String(Encoding.ASCII.GetBytes($"App:CrZ1B(n1Y@P5z31Vc1P^%Uy$")));
+
+            HttpResponseMessage response = await client2.SendAsync(requestMessage);
+            var wordPressClient2 = new WordPressClient(client2);
+            wordPressClient2.AuthMethod = AuthMethod.ApplicationPassword;
+
+            IEnumerable<PostViewModel> posts2 = (IEnumerable<PostViewModel>)await wordPressClient2.Posts.GetAll();
+            return posts2;
+        }
+
+
+        [HttpGet("GetPostById")]
+        public async Task<PostViewModel> GetPostById()
+        {
+            var client = new WordPressClient("http://daedtech.com/wp-json/");
+            PostViewModel post = await client.Posts.GetByID(11704);
+
+            return post;
+        }
+
+        [HttpGet("GetCategoryById")]
+        public async Task<IEnumerable<Category>> GetCategoryById()
+        {
+           // var client = new WordPressClient("http://daedtech.com/wp-json/");
+            // var client = new WordPressClient("http://axon.me/wp-json/");
+            //client.AuthMethod = AuthMethod.JWT;
+            //await client.RequestJWToken("App", "CrZ1B(n1Y@P5z31Vc1P^%Uy$");
+            //var isValidToken = await client.IsValidJWToken();
+            // IEnumerable<Category> cats = await client.Categories.Get();//.GetAll();
+           // CategoryViewModel cat = await client.Categories.GetByID(11704);//.GetAll();
+
+
+
+
+            var client = new WordPressClient("http://axon.me/wp-json/");
+            client.AuthMethod = AuthMethod.ApplicationPassword;
+            await client.RequestJWToken("App","CrZ1B(n1Y@P5z31Vc1P^%Uy$");
+            //var isValidToken = await client.IsValidJWToken();
+            IEnumerable<Category> cat = await client.Categories.Get();//.GetAll();
+
+
+            return cat;
+        }
+
+    }
+}
